@@ -213,3 +213,34 @@ valid request.
           error: 'send this if error'
         });
       });
+
+==================
+
+TEMPLATING WITH MUSTACHE
+
+-Go to github page, select version in branch dropdown by switching to tags tab.
+-Get the file mustache.js and download it - click Raw and right click SAVE-AS into your public/js/libs folder
+-import it into front end (index.html)
+
+-Create template in script tags adding type attribute set to text/template and an id for grabbing with javascript if necessary:
+
+  <script id="message-template" type="text/template">
+  
+  </script>
+
+-Access the script tag, get the html and assign it as template to html variable with Mustache:
+
+socket.on('newMessage', function(message) {
+        const template = $('#message-template').html();
+        const html = Mustache.render(template);
+
+        $('#messages').append(html);
+
+- Sending dynamic data:
+
+      // passin the template and other args for data to pass and access with {{ <var> }}
+        const html = Mustache.render(template, {
+          text: message.text
+        });
+
+      In html, access passed data with {{ varName }}, i.e. {{ text }}

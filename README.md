@@ -4,6 +4,7 @@
   - broadcasting and emiting custom events
   - listening for and handling custom events
   - Event Acknowledgements
+- HTML Templating with Mustache.js
 - Testing done with Mocha and Expect assertion library
 
 ###Features:

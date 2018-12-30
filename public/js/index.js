@@ -12,23 +12,29 @@
     
       socket.on('newMessage', function(message) {
         const formattedTime = moment(message.createdAt).format('h:mma')
-        // append chat message to ol on index page:
-        const li = $('<li></li>');
-        li.text(`${message.from} (${formattedTime}): ${message.text}`);
+        const template = $('#message-template').html();
+        // passin the template and other args for data to pass and access with {{ <var> }}
+        const html = Mustache.render(template, {
+          text: message.text,
+          from: message.from,
+          createdAt: formattedTime
+        });
 
-        $('#messages').append(li);
+        $('#messages').append(html);
       });
 
       socket.on('newLocationMessage', function(message) {
-        const formattedTime = moment(message.createdAt).format('h:mma')
-        const li = $('<li></li>');
-        const a = $('<a target="_blank" >My Current Location</a>');
+        const formattedTime = moment(message.createdAt).format('h:mma');
 
-        li.text(`${message.from} (${formattedTime}): `);
-        a.attr('href', message.url);
-        li.append(a);
-        $('#messages').append(li);
-      })
+        const template = $('#location-message-template').html();
+        const html = Mustache.render(template, {
+          from: message.from,
+          url: message.url,
+          createdAt: formattedTime
+        });
+
+        $('#messages').append(html);
+      });
 
       // // third arg is defining a callback that will be used on the listener in the server for acknowledgement.
       // socket.emit('createMessage', {
