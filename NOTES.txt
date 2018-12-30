@@ -191,6 +191,25 @@ valid request.
  1) on emitter, add a third argument, a callback.  This is defining a function to be called on the 
     listener handler which will be passed in as a callback arg
 
+        socket.emit('createMessage', { 
+          from: "Frank",
+          text: "hi"
+        }, function(data) {
+          console.log('from the server', data)
+        }
+
   2) on listener, pass in a second argument 'callback' after the data received arg which will be 
      the function defined in the third argument of the emitter.  You can call this after  handling
      the received data.
+
+     To send data back, pass in an arg to callback() - use an object if sending multiple pieces of data
+
+     Ex:
+
+     socket.on('createMessage', (message, callback) => {
+        io.emit('newMessage', generateMessage(message.from, message.text));
+        // part of acknowledgement set up - fn is defined in the emit code on client as a third arg
+        callback({
+          error: 'send this if error'
+        });
+      });
