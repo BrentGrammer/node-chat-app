@@ -262,7 +262,7 @@ socket.on('newMessage', function(message) {
      -this means the user is at the bottom and if a new message comes in, autoscroll should fire.
      ***Add message height since it will be present, so final calculation is:
 
-        if (scrollTop + clientHeight + messageHeight === scrollHeight) then autoscroll
+        if (scrollTop + clientHeight + messageHeight + lastMessageHeight >= scrollHeight) then autoscroll
 
   1) Make a function scrollToBottom which fires everytime a new message is added to chat area.
 
