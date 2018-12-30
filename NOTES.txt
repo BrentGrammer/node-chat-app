@@ -124,7 +124,9 @@ field attached in addition to the data.
 // note (the createdAt is not sent from the client to prevent spoofing the time but is created on the server)
 
 **socket.emit emits an event to the single socket connection.
-** Use io.emit() to emit an event to every socket connection to broadcast the event
+** Use io.emit() to emit an event to every socket connection including the sending client socket
+
+Broadcasting: emiting an event to every user except one user (useful for ...user has joined...?)
 
 On server:
 
@@ -144,3 +146,31 @@ socket.on('newMessage', function(message) {
 })
 
 // client emits a 'createMessage' event when user enters a message which server listens for and broadcasts in callback
+
+
+BROADCASTING AN EVENT:
+
+
+Broadcasting: emiting an event to every user except one user (useful for ...user has joined... and not show to
+client joining)
+
+// this builtin method sends event to everyone except this socket:
+
+  socket.broadcast.emit('newMessage', {
+    ...messagedata
+  })
+
+Ex greeting new user and notifying other users:
+
+// Greet new user:
+  socket.emit('newMessage', {
+    from: "Admin",
+    text: "Welcome to chat app.",
+    createdAt: new Date().getTime()
+  });
+  // Broadcast to other users that a new user joined:
+  socket.broadcast.emit('newMessage', {
+    from: "Admin",
+    text: "New user joined.",
+    createdAt: new Date().getTime()
+  });
