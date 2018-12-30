@@ -9,12 +9,7 @@
       socket.on('disconnect', function() {
         console.log('Disconnected from server.');
       })
-      // emit events inside the callback to on connection to emit after connection is made.
-      socket.emit('createMessage', {
-        from: "User",
-        text: "message"
-      });
-
+    
       socket.on('newMessage', function(message) {
         console.log('new message', message)
       })

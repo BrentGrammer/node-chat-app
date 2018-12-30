@@ -23,16 +23,14 @@ io.on('connection', socket => {
   })
 
   socket.on('createMessage', (message) => {
-    console.log('createMessage', message)
-  })
-
-  socket.emit('newMessage', {
-    from: "User",
-    text: "newmessage",
-    createdAt: new Date()
-  })
-
-
+    console.log('createMessage', message);
+    //use io.emit to broadcast an event emit to all connected sockets:
+    io.emit('newMessage', {
+      from: message.from,
+      text: message.text,
+      createdAt: new Date().getTime()
+    });
+  });
 })
 
 server.listen(PORT, () => {

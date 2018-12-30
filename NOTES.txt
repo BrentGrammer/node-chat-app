@@ -52,6 +52,10 @@ EVENTS:
 Note: for debugging and testing, you have access to the socket variable in the console in the browser developer 
 tools with methods attached etc. to emit events
 
+Note:
+**socket.emit() emits an event to the single socket connection.
+** Use io.emit() to emit an event to every socket connection to broadcast the event
+
 built in event methods:
 
 io.on('connection') -- registers an event listener for connection when a client connects and grants access to socket in callback
@@ -115,18 +119,28 @@ Emit the event:
 BASIC CHAT EVENT SYSTEM:
 
 1) Server listens for 'createMessage' event from client
-2) When received, the server emits a 'newMessage' event with a createdAt field attached in addition to the data.
+2) When received, the server listener callback emits a 'newMessage' event with io.emit and makes a createdAt 
+field attached in addition to the data.
 // note (the createdAt is not sent from the client to prevent spoofing the time but is created on the server)
+
+**socket.emit emits an event to the single socket connection.
+** Use io.emit() to emit an event to every socket connection to broadcast the event
 
 On server:
 
   socket.on('createMessage', (message) => {
-    console.log('createMessage', message)
-  })
+    console.log('createMessage', message);
+    //use io.emit to broadcast an event emit to all connected sockets:
+    io.emit('newMessage', {
+      from: message.from,
+      text: message.text,
+      createdAt: new Date().getTime()
+    });
 
 On Client:
 
- socket.emit('createMessage', {
-    from: "User",
-    text: "message"
-  });
+socket.on('newMessage', function(message) {
+  console.log('new message', message)
+})
+
+// client emits a 'createMessage' event when user enters a message which server listens for and broadcasts in callback
