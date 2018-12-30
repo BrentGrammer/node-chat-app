@@ -19,6 +19,16 @@
         $('#messages').append(li);
       });
 
+      socket.on('newLocationMessage', function(message) {
+        const li = $('<li></li>');
+        const a = $('<a target="_blank" >My Current Location</a>');
+
+        li.text(`${message.from}: `);
+        a.attr('href', message.url);
+        li.append(a);
+        $('#messages').append(li);
+      })
+
       // // third arg is defining a callback that will be used on the listener in the server for acknowledgement.
       // socket.emit('createMessage', {
       //   from: "Frank",

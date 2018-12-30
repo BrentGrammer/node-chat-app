@@ -5,3 +5,9 @@
   - listening for and handling custom events
   - Event Acknowledgements
 - Testing done with Mocha and Expect assertion library
+
+###Features:
+
+- Live chat over web sockets
+- Geolocation API
+
