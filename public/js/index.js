@@ -3,6 +3,29 @@
     // and keep it open.
     const socket = io();
 
+    function scrollToBottom() {
+      // Selectors
+      const messages = $('#messages');
+      // get the last message
+      const newMessage = messages.children('li:last-child')
+      // Heights
+      // prop is cross browser to access height properties on different browsers
+      const clientHeight = messages.prop('clientHeight');
+      const scrollTop = messages.prop('scrollTop');
+      const scrollHeight = messages.prop('scrollHeight');
+      // innerHeight takes into account padding as well
+      const newMessageHeight = newMessage.innerHeight();
+      // prev selects previous child item = this selects second to last list item
+      const lastMessageHeight = newMessage.prev().innerHeight();
+
+      // if user is at bottom or near bottom, then scroll to bottom:
+      if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+        console.log('should scroll');
+        // set the scrolltop to the scrollHeight of entire container to move scroll to bottom
+        messages.scrollTop(scrollHeight);
+      }
+    }
+
     socket.on('connect', function() {
       console.log('connected to server');
       
@@ -21,6 +44,7 @@
         });
 
         $('#messages').append(html);
+        scrollToBottom();
       });
 
       socket.on('newLocationMessage', function(message) {
@@ -34,6 +58,7 @@
         });
 
         $('#messages').append(html);
+        scrollToBottom();
       });
 
       // // third arg is defining a callback that will be used on the listener in the server for acknowledgement.
