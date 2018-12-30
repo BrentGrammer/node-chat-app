@@ -30,7 +30,7 @@ io.on('connection', socket => {
     //use io.emit to send an event emit to all connected sockets:
     io.emit('newMessage', generateMessage(message.from, message.text));
     // part of acknowledgement set up - fn is defined in the emit code on client as a third arg
-    callback('From the server');
+    callback();
   });
 
   socket.on('createLocationMessage', (coords) => {
