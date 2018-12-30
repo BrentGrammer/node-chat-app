@@ -1,0 +1,132 @@
+Socket.io
+
+-Has both front end and back end library
+-Makes it simple to make a server and app that uses Web Sockets.
+
+**The client server relationship in web socket connection is based on events.
+**Events can be emitted by the client or the server, and both can listen for events emitted by the other.
+
+*A socket connection can only stay open if both the client and server are listening - if the browser is
+closed or the server closes the connection, then the socket cannot be forced to stay open either way and will
+be closed if one or the other disconnects.  
+(Note: the client will try to reconnect if the server connection is closed.)
+
+- Can build on top of an express server:
+
+1) install with yarn or npm
+  $ yarn add socket.io
+
+2) require it in the server file: const socketIO = require('socket.io');
+
+3) configure node http module with express before adding support for socket io.
+   in server file:
+     const http = require('http'); // at the top before sockio require statement!
+
+    - create a server using http module and pass in the express app const:
+       const server = http.createServer(app);
+
+    - change the app.listen to server.listen - the args are the same as for app.listen:
+       server.listen(PORT, () => {
+        console.log('server is up on port ' + PORT);
+      });
+4) Create a websockets server with socket io.  pass in the server you want to use (i.e. the server created with
+   http.createServer)
+      var io = socketIO(server); // this enables you to communicate between the server and the client
+
+5) on the front end, load the socket io client javascript library: 
+   <script src="/socket.io/socket.io.js"> </script> // src path is relative to server directory
+
+   -this loads the socket.io client library with methods for conecting to the websocket server and sending/receiving 
+    data on the front end.
+
+    -the method io() is exposed which is used to open a socket connection to the server and keep it open.
+    in the front end code, assign what it returns to a socket variable:
+      const socket = io();
+
+  ==============
+
+EVENTS:
+
+-There are builtin events with socket.io and also custom events can be created and emitted.
+
+Note: for debugging and testing, you have access to the socket variable in the console in the browser developer 
+tools with methods attached etc. to emit events
+
+built in event methods:
+
+io.on('connection') -- registers an event listener for connection when a client connects and grants access to socket in callback
+/ NOTE: io.on('connection') is a special event that gives you access to the socket to use socket.io methods on
+// all event handling and listening, emiting etc. is done inside the io.on() callback block
+
+builtin Events:
+
+SERVER EVENTS:
+
+'connection' - listen for a new connection and fire a callback with a socket representing the individual new socket 
+that connected passed in (not all sockets).
+  Ex:
+    io.on('connection', (socket) => {
+      console.log('new user connected')
+    })
+
+
+'disconnect' - fires when connection lost - use in io.on(connection) callback:
+  io.on('connection', (socket) => {
+      console.log('new user connected');
+
+      socket.on('disconnect', () => {
+        console.log('client disconnected')
+      })
+    })
+
+CLIENT EVENTS:
+
+-'connect' event is also available on the client.
+   socket.on('connect', () => {
+     console.log('Connected to server.')
+   })
+   // socket is not an arg since it is already available and assigned as a const to io();
+
+- 'disconnect' - fires when the connection to the server is lost or shut down.
+   socket.on('disconnect', () => {
+     console.log('Disconnected from server.')
+   })
+
+CUSTOM EVENTS:
+
+- You can emit an event from the client or server and listen for that event on the other end to handle it.
+
+Listen to custom events:
+  socket.on('customEvent', function(dataSent) {
+    console.log('custom event fired)
+  })
+// any data emitted with the event is provided in the first arg to the callback listener
+
+
+Emit the event:
+ // you don't pass in a handler, but data instead.  By default you do not have to specify and pass in data.
+  socket.emit('customEvent', {
+    data: value,
+    data2: value2
+  })
+
+====================
+
+BASIC CHAT EVENT SYSTEM:
+
+1) Server listens for 'createMessage' event from client
+2) When received, the server emits a 'newMessage' event with a createdAt field attached in addition to the data.
+// note (the createdAt is not sent from the client to prevent spoofing the time but is created on the server)
+
+On server:
+
+  socket.on('createMessage', (message) => {
+    console.log('createMessage', message)
+  })
+
+On Client:
+
+ socket.emit('createMessage', {
+    from: "User",
+    text: "message"
+  });

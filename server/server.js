@@ -13,12 +13,26 @@ var io = socketIO(server);
 
 app.use(express.static(publicPath));
 
+// NOTE: io.on('connection') is a special event that gives you access to the socket to use socket.io methods on
+// all event handling and listening, emiting etc. is done inside the io.on() callback block
 io.on('connection', socket => {
   console.log('new user connected');
 
   socket.on('disconnect', () => {
     console.log('user was disconnected')
   })
+
+  socket.on('createMessage', (message) => {
+    console.log('createMessage', message)
+  })
+
+  socket.emit('newMessage', {
+    from: "User",
+    text: "newmessage",
+    createdAt: new Date()
+  })
+
+
 })
 
 server.listen(PORT, () => {
