@@ -174,3 +174,23 @@ Ex greeting new user and notifying other users:
     text: "New user joined.",
     createdAt: new Date().getTime()
   });
+
+=================================
+
+EVENT ACKNOWLEDGEMENTS:
+
+-Way to handle if emitted events received are invalid and provide an option to send data back to
+the emitter source (i.e. the client)
+(Acknowledgements can be implemented both ways client to server or server to client)
+
+-Server sends acknowledgement with success or error message to instruct client what to do to send a 
+valid request.
+
+-You need to make changes to both the emit and listener code for acknowledgments to work.
+
+ 1) on emitter, add a third argument, a callback.  This is defining a function to be called on the 
+    listener handler which will be passed in as a callback arg
+
+  2) on listener, pass in a second argument 'callback' after the data received arg which will be 
+     the function defined in the third argument of the emitter.  You can call this after  handling
+     the received data.

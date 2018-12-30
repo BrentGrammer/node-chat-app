@@ -12,6 +12,14 @@
     
       socket.on('newMessage', function(message) {
         console.log('new message', message)
+      });
+
+      // third arg is defining a callback that will be used on the listener in the server for acknowledgement.
+      socket.emit('createMessage', {
+        from: "Frank",
+        text: "hi"
+      }, function() {
+        console.log('got it')
       })
     });
 

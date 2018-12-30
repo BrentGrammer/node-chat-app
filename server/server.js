@@ -26,15 +26,11 @@ io.on('connection', socket => {
   // Broadcast to other users that a new user joined:
   socket.broadcast.emit('newMessage', generateMessage("Admin", "New User Joined."));
 
-  socket.on('createMessage', (message) => {
+  socket.on('createMessage', (message, callback) => {
     //use io.emit to send an event emit to all connected sockets:
     io.emit('newMessage', generateMessage(message.from, message.text));
-    // broadcast an event to every socket except this one:
-    // socket.broadcast.emit('newMessage', {
-    //   from: "user",
-    //   text: "new message",
-    //   createdAt: new Date().getTime()
-    // })
+    // part of acknowledgement set up - fn is defined in the emit code on client as a third arg
+    callback();
   });
 })
 

@@ -3,4 +3,5 @@
 - Socket.io for establishing client server connections using Web Sockets
   - broadcasting and emiting custom events
   - listening for and handling custom events
+  - Event Acknowledgements
 - Testing done with Mocha and Expect assertion library
