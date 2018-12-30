@@ -11,19 +11,20 @@
       })
     
       socket.on('newMessage', function(message) {
-        console.log('new message', message);
+        const formattedTime = moment(message.createdAt).format('h:mma')
         // append chat message to ol on index page:
         const li = $('<li></li>');
-        li.text(`${message.from}: ${message.text}`);
+        li.text(`${message.from} (${formattedTime}): ${message.text}`);
 
         $('#messages').append(li);
       });
 
       socket.on('newLocationMessage', function(message) {
+        const formattedTime = moment(message.createdAt).format('h:mma')
         const li = $('<li></li>');
         const a = $('<a target="_blank" >My Current Location</a>');
 
-        li.text(`${message.from}: `);
+        li.text(`${message.from} (${formattedTime}): `);
         a.attr('href', message.url);
         li.append(a);
         $('#messages').append(li);
