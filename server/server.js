@@ -32,6 +32,10 @@ io.on('connection', socket => {
     // part of acknowledgement set up - fn is defined in the emit code on client as a third arg
     callback('From the server');
   });
+
+  socket.on('createLocationMessage', (coords) => {
+    io.emit('newMessage', generateMessage("Admin", `${coords.latitude} ${coords.longitude}`))
+  })
 })
 
 server.listen(PORT, () => {
