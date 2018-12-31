@@ -53,8 +53,9 @@ Note: for debugging and testing, you have access to the socket variable in the c
 tools with methods attached etc. to emit events
 
 Note:
-**socket.emit() emits an event to the single socket connection.
-** Use io.emit() to emit an event to every socket connection to broadcast the event
+** socket.emit() - emits an event to the single socket connection.
+** io.emit() - emit an event to every socket connection to broadcast the event
+** socket.broadcast.emit() - emits to all other users except the connected socket
 
 built in event methods:
 
@@ -305,3 +306,166 @@ socket.on('newMessage', function(message) {
         $('#messages').append(html);
         scrollToBottom();
       });
+
+=======================
+
+GETTING URL PARAMS FOR JOING A CHAT ROOM FROM HOME SCREEN INPUT:
+
+-query params are on window.location.search
+-decode the params sent with the join room form on the home page with deparam plugin for jQuery: 
+https://gist.github.com/andrewjmead/b71e03d8df237983285892f9a265d401
+  -otherwise, you need to get the values another way and be sure to decode them
+
+
+CREATING ROOMS:
+
+-Socket.io has some builtin functionality for creating rooms - this gets setup on the server.
+-Create a custom join event which is emitted on the client after connection.  Provide an acknowledgement
+  callback that takes an err arg which can redirect user back to the join page if data sent is invalid, etc.
+
+
+    // handle join a room event on server:
+  socket.on('join', (params, callback) => {
+    //validate form data sent (if validation fails, send an err in the acknowledgement callback, otherwise do not send err):
+    if (!isRealString(params.name) || !isRealString(params.room)) {
+      callback('Name and room name are required.');
+    }
+
+    callback();
+  });
+
+On Client:
+
+   socket.on('connect', function() {
+      console.log('connected to server');
+      // decode params in url query sent with join form:
+      const params = $.deparam(window.location.search);
+
+      socket.emit('join', params, function(err) {
+        if (err) {
+          alert(err);
+          window.location.href = "/";
+        } else {
+          console.log('no error');
+        }
+      });
+    });
+
+--------------
+
+JOINING/LEAVING ROOM WITH SOCKET.IO:
+
+socket.join('room name');
+socket.leave('room name');
+
+On server:
+
+    socket.on('join', (params, callback) => {
+      if (!isRealString(params.name) || !isRealString(params.room)) {
+        callback('Name and room name are required.');
+      }
+
+      //builtin join method with socket.io (takes a string for room name):
+      socket.join(params.room);
+
+      callback();
+    });
+
+SENDING EVENTS TO ROOMS:
+
+-use main emit methods with .to('room name'):
+
+  io.to('room name').emit() - emits event to everyone in room
+  socket.broadcast.to('room name').emit() - emit to everyone except current socket connected in room
+
+Ex on server:
+
+// handle join a room event:
+  socket.on('join', (params, callback) => {
+    //validate form data sent (if validation fails, send an err in the acknowledgement callback, otherwise do not send err):
+    if (!isRealString(params.name) || !isRealString(params.room)) {
+      return callback('Name and room name are required.');
+      // remember to return to stop the function from running to end
+    }
+
+    //builtin join method with socket.io (takes a string for room name):
+    socket.join(params.room);
+
+    // Greet new user:
+    socket.emit('newMessage', generateMessage("Admin", "Welcome to the chat!"));
+    // Broadcast to other users that a new user joined:
+    socket.broadcast.to(params.room).emit('newMessage', generateMessage("Admin", `${params.name} has joined.`));
+
+    callback();
+  });
+
+
+  -----
+
+  EMITING MESSAGE EVENTS TO ROOMS:
+
+  -on server you have access to a socket.id property.  You can make a datastructure to store users and room name 
+   based on a socket id key and emit events to users/rooms based on the socket id.
+
+   -store a users list in a user.js file in an array of objects:
+     [
+       {
+         id: 'sdfsdfsdf',
+         name: 'Bob',
+         room: 'room name'
+       }
+     ]
+
+  1) Create a Users class initialized to an empty array in a users.js file.
+
+  Ex:
+
+      class Users {
+        constructor() {
+          this.users = [];
+        }
+
+        addUser(id, name, room) {
+          const user = { id, name, room };
+          this.users.push(user);
+          return user;
+        }
+        removeUser(id) {
+          const user = this.getUser(id);
+
+          if(user) {
+            this.users = this.users.filter(user => user.id !== id);
+          }
+          return user;
+        }
+        getUser(id) {
+          // return the first user or undefined
+          return this.users.filter(user => user.id === id)[0];
+        }
+        getUserList(room) {
+          // filter by room passed in
+          const users = this.users.filter((user) => user.room === room);
+          // build array of user names in room:
+          const namesArray = users.map((user) => user.name);
+          return namesArray;
+        }
+    }
+
+  2) Keep the users list on the client up to date:
+
+    - On Client: listen to an 'updateUserList' event to server to update the list when user leaves/enters room
+    - On Server: emit 'updateUserList' event on user enter/leave and update the users with users class.
+
+
+    /** Update users list on user joined */
+
+    socket.join(params.room);
+    // remove user from any previous rooms:
+    users.removeUser(socket.id);
+    // add user to new room
+    users.addUser(socket.id, params.name, params.room);
+
+    /** emit update list event to everyone in the room so client gets norified and updates their list with that returned */
+    io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+  });
+

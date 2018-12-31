@@ -10,5 +10,7 @@
 ###Features:
 
 - Live chat over web sockets
+- Chat rooms
 - Geolocation API
+- Autoscroll to bottom on new chat message
 
