@@ -53,9 +53,15 @@ Note: for debugging and testing, you have access to the socket variable in the c
 tools with methods attached etc. to emit events
 
 Note:
+EMITTING FROM THE SERVER:
 ** socket.emit() - emits an event to the single socket connection.
-** io.emit() - emit an event to every socket connection to broadcast the event
+** io.emit() - emit an event to every socket connection 
 ** socket.broadcast.emit() - emits to all other users except the connected socket
+
+EMITTING TO A ROOM:
+socket.to('room').emit()
+io.to('room').emit()
+socket.broadcast.to('room').emit()
 
 built in event methods:
 
@@ -486,9 +492,43 @@ Ex on server:
     }
   });
 
+------
 
 Add Users to a list to render on the view on client:
 
+// if user leaves or joins room on client, emit an event to server to update the list rendered
+socket.on('updateUserList', function(users) {
+  const ol = $('<ol></ol>');
+
+  users.forEach(function (user){
+    ol.append($('<li></li>').text(user));
+  });
+  // replace the list completely with the new version (don't update with append for example)
+  $('#users').html(ol);
+})
+
+----------
+
+DISPLAYING MESSAGES TO ONLY THE ROOM USER IS IN:
+
+-On client don't send user (i.e. handle or from) with the 'createMessage' event data.
+
+ socket.emit('createMessage', {
+    text: messageTextbox.val()
+  }
+
+-On the server, get the user/handle from the users list for the room using the users class and emit the message to
+only the room using io.to(room).emit... (get the room from the user object returned from users class):
+
+  socket.on('createMessage', (message, callback) => {
+    const user = users.getUser(socket.id);
+    // check if user returned and if the text is valid (this prevents users from sending empty messages or bunch of spaces)
+    if (user && isRealString(message.text)) {
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
+
+    callback();
+  });
 
 
 

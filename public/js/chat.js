@@ -89,12 +89,11 @@ $('#message-form').on('submit', function(e) {
   const messageTextbox =  $('[name=message');
 
   socket.emit('createMessage', {
-    from: "user",
     text: messageTextbox.val()
   }, function() {
     // clear send input
     messageTextbox.val('')
-  })
+  });
 });
 
 const locationButton = $('#send-location');

@@ -49,14 +49,22 @@ io.on('connection', socket => {
   });
 
   socket.on('createMessage', (message, callback) => {
-    //use io.emit to send an event emit to all connected sockets:
-    io.emit('newMessage', generateMessage(message.from, message.text));
+    const user = users.getUser(socket.id);
+    // check if user returned and if the text is valid (this prevents users from sending empty messages or bunch of spaces)
+    if (user && isRealString(message.text)) {
+      //use io.emit to send an event emit to all connected sockets:
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
+
     // part of acknowledgement set up - fn is defined in the emit code on client as a third arg
     callback();
   });
 
   socket.on('createLocationMessage', (coords) => {
-    io.emit('newLocationMessage', generateLocationMessage("Admin", coords.latitude, coords.longitude))
+    const user = users.getUser(socket.id);
+    if (user) {
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude))
+    }
   });
 
   
