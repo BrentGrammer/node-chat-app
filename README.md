@@ -7,7 +7,7 @@
 - HTML Templating with Mustache.js
 - Testing done with Mocha and Expect assertion library
 
-###Features:
+### Features:
 
 - Live chat over web sockets
 - Chat rooms

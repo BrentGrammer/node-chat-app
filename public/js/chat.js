@@ -45,9 +45,15 @@ socket.on('disconnect', function() {
   console.log('Disconnected from server.');
 });
 
-// if user leaves or joins room on client, emit an event to server to update the list
+// if user leaves or joins room on client, emit an event to server to update the list rendered
 socket.on('updateUserList', function(users) {
+  const ol = $('<ol></ol>');
 
+  users.forEach(function (user){
+    ol.append($('<li></li>').text(user));
+  });
+  // replace the list completely with the new version (don't update with append for example)
+  $('#users').html(ol);
 })
 
 socket.on('newMessage', function(message) {

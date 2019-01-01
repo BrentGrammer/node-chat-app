@@ -20,12 +20,6 @@ app.use(express.static(publicPath));
 // NOTE: io.on('connection') is a special event that gives you access to the socket to use socket.io methods on
 // all event handling and listening, emiting etc. is done inside the io.on() callback block
 io.on('connection', socket => {
-  console.log('new user connected');
-
-  socket.on('disconnect', () => {
-    console.log('user was disconnected')
-  });
-
   // handle join a room event:
   socket.on('join', (params, callback) => {
     //validate form data sent (if validation fails, send an err in the acknowledgement callback, otherwise do not send err):
@@ -63,7 +57,21 @@ io.on('connection', socket => {
 
   socket.on('createLocationMessage', (coords) => {
     io.emit('newLocationMessage', generateLocationMessage("Admin", coords.latitude, coords.longitude))
-  })
+  });
+
+  
+  socket.on('disconnect', () => {
+    const user = users.removeUser(socket.id);
+    // only remove user if the person joined a room (there will be no id entry for them if they didn't join)
+    // (removeUser returns the user removed if successful or null otherwise if user not found)
+    if (user) {
+      // emit two events to every person in the chat room using io emit
+      // send updated user list back to client:
+      io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+      // emit message from admin:
+      io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+    }
+  });
 });
 
 server.listen(PORT, () => {

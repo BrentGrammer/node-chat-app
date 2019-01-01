@@ -469,3 +469,26 @@ Ex on server:
     io.to(params.room).emit('updateUserList', users.getUserList(params.room));
   });
 
+------
+
+  Remove a user in the disconnect listener on the server file:
+
+  socket.on('disconnect', () => {
+    const user = users.removeUser(socket.id);
+    // only remove user if the person joined a room (there will be no id entry for them if they didn't join)
+    // (removeUser returns the user removed if successful or null otherwise if user not found)
+    if (user) {
+      // emit two events to every person in the chat room using io emit
+      // send updated user list back to client:
+      io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+      // emit message from admin:
+      io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+    }
+  });
+
+
+Add Users to a list to render on the view on client:
+
+
+
+
