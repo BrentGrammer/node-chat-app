@@ -531,4 +531,10 @@ only the room using io.to(room).emit... (get the room from the user object retur
   });
 
 
+==================
 
+CONSIDERATIONS:
+
+-Make chat room names insensitive, so that all names for chat rooms are converted to lowercase after entered.
+-Make usernames unique
+-Have active chat rooms list - use similar technique to updating user list with the users class
