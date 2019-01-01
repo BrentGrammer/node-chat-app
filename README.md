@@ -1,6 +1,6 @@
 ### Socket.io chat app with Node
 
-#### [Working link to app on Heroku here] (https://salty-peak-19849.herokuapp.com/chat.html?name=b&room=brent)
+#### [Working link to app on Heroku here] (https://salty-peak-19849.herokuapp.com/)
 
 - Socket.io for establishing client server connections using Web Sockets
   - broadcasting and emiting custom events
